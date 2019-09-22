@@ -1,20 +1,34 @@
+import re
+
+# Set up the DataFrame for the oolumns to extract from the station_data.sql waypoint table data
 import pandas as pd
+df = pd.DataFrame(columns=['waypoint_name', 'waypoint_type', 'waypoint_id', 'waypoint_lat', 'waypoint_long', 'waypoint_radius', 'tap_tsi_code'])
 
-# data = pd.read_csv("stadler_station_data.csv", header=None)
-data = pd.read_csv("gwr_station_data.csv", header=None)
-print("Read {} waypoints".format(int(data.size/2)))
-
+# Create a basemap centred somewhere around East Anglia
 import folium
-folium_map = folium.Map(location=[51.648611,  -0.052778],
-                        zoom_start=10)
-                        # tiles="CartoDB dark_matter")
+# station_data_map = folium.Map(location=[51.648611, -0.052778], zoom_start=10, tiles="CartoDB dark_matter")
+station_data_map = folium.Map(location=[51.648611, -0.052778], zoom_start=10)
 
-print("Plotting points...")
-for index, coord in data.iterrows():
-    # print (index, coord[0], coord[1])
-    marker = folium.CircleMarker(location=coord)
-    marker.add_to(folium_map)
+# Open station_data.sql file for parsing
+data_file = "/Users/Nathan/PycharmProjects/stationplotter/stadler_station_data.sql"
+data_sql = open(data_file, 'r')
+for line in data_sql:
+    # Regex for the DataFrame columns
+    wp_line_re = re.match("^.*INSERT\s+INTO\s+waypoint.*VALUES[^\(]*\((.*)\)[^\)]*;.*$", line)
+    if wp_line_re:
+        # Strip ' from the line, then split on ','
+        data = wp_line_re.group(1).replace('\'', '')
+        # data_wp = data.split(',')
+        waypoint_name, waypoint_type, waypoint_id, waypoint_lat, waypoint_long, waypoint_radius, tap_tsi_code = data.split(',')
 
-map_page = "my_map.html"
-print("Output to page {}".format(map_page))
-folium_map.save(map_page)
+        # Add markers to the map
+        lat, lon = float(waypoint_lat), float(waypoint_long)
+        folium.Marker(location=[lat, lon], tooltip=waypoint_name).add_to(station_data_map)
+        geofence = float(waypoint_radius)
+        folium.Circle([lat, lon], radius=geofence, fill=True, fill_color='green', fill_opacity=0.25, tooltip=waypoint_name).add_to(station_data_map)
+
+map_file = "/Users/Nathan/PycharmProjects/stationplotter/station_data_map.html"
+print("Writing to file {}".format(map_file))
+print("Output to page {}".format(map_file))
+station_data_map.save(map_file)
+
