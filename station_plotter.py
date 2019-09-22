@@ -1,4 +1,20 @@
-import re
+"""
+Script to:
+- read a station_data.sql file
+- extract the waypoint table insertions from that file
+- parset the waypoint information for name, lat, lon, geo
+- plot pin on map
+- plot shaded area for geofence, with popup label
+"""
+
+
+import tkinter as tk
+from tkinter import filedialog
+
+# Popup to select input station_data.sql file
+root = tk.Tk()
+root.withdraw()
+station_data_sql = filedialog.askopenfilename()
 
 # Set up the DataFrame for the oolumns to extract from the station_data.sql waypoint table data
 import pandas as pd
@@ -10,8 +26,9 @@ import folium
 station_data_map = folium.Map(location=[51.648611, -0.052778], zoom_start=10)
 
 # Open station_data.sql file for parsing
-data_file = "/Users/Nathan/PycharmProjects/stationplotter/stadler_station_data.sql"
-data_sql = open(data_file, 'r')
+# data_file = "/Users/Nathan/PycharmProjects/stationplotter/stadler_station_data.sql"
+import re
+data_sql = open(station_data_sql, 'r')
 for line in data_sql:
     # Regex for the DataFrame columns
     wp_line_re = re.match("^.*INSERT\s+INTO\s+waypoint.*VALUES[^\(]*\((.*)\)[^\)]*;.*$", line)
