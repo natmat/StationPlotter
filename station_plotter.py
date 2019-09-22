@@ -44,7 +44,7 @@ for line in data_sql:
         geofence = float(waypoint_radius)
         folium.Circle([lat, lon], radius=geofence, fill=True, fill_color='green', fill_opacity=0.25, tooltip=waypoint_name).add_to(station_data_map)
 
-map_file = "/Users/Nathan/PycharmProjects/stationplotter/station_data_map.html"
+map_file = station_data_sql + ".map.html"
 print("Writing to file {}".format(map_file))
 station_data_map.save(map_file)
 
