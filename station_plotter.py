@@ -1,46 +1,50 @@
-def waypoint_finder(file):
-    for line in file:
-        if 'INSERT INTO waypoint' in line:
-            yield line
+"""
+Script to:
+- read a station_data.sql file
+- extract the waypoint table insertions from that file
+- parset the waypoint information for name, lat, lon, geo
+- plot pin on map
+- plot shaded area for geofence, with popup label
+"""
 
 
-# Extract waypoint table INSERTs
-source_data = open('stadler_station_data.sql','r')
-csv_data = open('tmp_data.csv', 'w');
-for wp in waypoint_finder(source_data):
-    csv_data.write(wp)
-csv_data.close()
+import tkinter as tk
+from tkinter import filedialog
 
+# Popup to select input station_data.sql file
+root = tk.Tk()
+root.withdraw()
+station_data_sql = filedialog.askopenfilename()
 
-# Read the CSV data
+# Set up the DataFrame for the oolumns to extract from the station_data.sql waypoint table data
 import pandas as pd
-data = pd.read_csv('tmp_data.csv', header=None)
-print("Reading waypoints")
+df = pd.DataFrame(columns=['waypoint_name', 'waypoint_type', 'waypoint_id', 'waypoint_lat', 'waypoint_long', 'waypoint_radius', 'tap_tsi_code'])
 
+# Create a basemap centred somewhere around East Anglia
 import folium
-folium_map = folium.Map(location=[51.648611,  -0.052778],
-                        zoom_start=15)
-                        # tiles="CartoDB dark_matter")
+# station_data_map = folium.Map(location=[51.648611, -0.052778], zoom_start=10, tiles="CartoDB dark_matter")
+station_data_map = folium.Map(location=[51.648611, -0.052778], zoom_start=10)
 
-print("Plotting points...")
-for v in data.values:
-    import re
-    match = re.split("\'", v[6])
-    waypoint_name = match[1]
+# Open station_data.sql file for parsing
+# data_file = "/Users/Nathan/PycharmProjects/stationplotter/stadler_station_data.sql"
+import re
+data_sql = open(station_data_sql, 'r')
+for line in data_sql:
+    # Regex for the DataFrame columns
+    wp_line_re = re.match("^.*INSERT\s+INTO\s+waypoint.*VALUES[^\(]*\((.*)\)[^\)]*;.*$", line)
+    if wp_line_re:
+        # Strip ' from the line, then split on ','
+        data = wp_line_re.group(1).replace('\'', '')
+        # data_wp = data.split(',')
+        waypoint_name, waypoint_type, waypoint_id, waypoint_lat, waypoint_long, waypoint_radius, tap_tsi_code = data.split(',')
 
-    coord = v[9],v[10]
-    marker = folium.CircleMarker(location=coord)
-    marker.add_to(folium_map)
+        # Add markers to the map
+        lat, lon = float(waypoint_lat), float(waypoint_long)
+        folium.Marker(location=[lat, lon], tooltip=waypoint_name).add_to(station_data_map)
+        geofence = float(waypoint_radius)
+        folium.Circle([lat, lon], radius=geofence, fill=True, fill_color='green', fill_opacity=0.25, tooltip=waypoint_name).add_to(station_data_map)
 
-    # Add geofence
-    folium.Circle(
-        radius=500,
-        location=coord,
-        popup=waypoint_name,
-        color='crimson',
-        fill=False,
-    ).add_to(folium_map)
+map_file = "/Users/Nathan/PycharmProjects/stationplotter/station_data_map.html"
+print("Writing to file {}".format(map_file))
+station_data_map.save(map_file)
 
-map_page = "my_map.html"
-print("Output to page {}".format(map_page))
-folium_map.save(map_page)
