@@ -1,6 +1,7 @@
 import pandas as pd
 
-data = pd.read_csv("stadler_station_data.csv", header=None)
+# data = pd.read_csv("stadler_station_data.csv", header=None)
+data = pd.read_csv("gwr_station_data.csv", header=None)
 print("Read {} waypoints".format(int(data.size/2)))
 
 import folium
