@@ -7,7 +7,7 @@ Script to:
 - plot shaded area for geofence, with popup label
 """
 
-
+from sys import exit
 import tkinter as tk
 from tkinter import filedialog
 
@@ -17,7 +17,7 @@ root.withdraw()
 station_data_sql = filedialog.askopenfilename()
 if not station_data_sql:
     print("Error: must select a station_data.sql file")
-    sys.exit(1)
+    exit(1)
 print("Reading data from {}".format(station_data_sql))
 
 # Set up the DataFrame for the oolumns to extract from the station_data.sql waypoint table data
