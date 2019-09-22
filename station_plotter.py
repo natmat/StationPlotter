@@ -29,6 +29,5 @@ for line in data_sql:
 
 map_file = "/Users/Nathan/PycharmProjects/stationplotter/station_data_map.html"
 print("Writing to file {}".format(map_file))
-print("Output to page {}".format(map_file))
 station_data_map.save(map_file)
 
