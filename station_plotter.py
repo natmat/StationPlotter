@@ -15,6 +15,9 @@ from tkinter import filedialog
 root = tk.Tk()
 root.withdraw()
 station_data_sql = filedialog.askopenfilename()
+if not station_data_map:
+    print("Error: must select a station_data.sql file")
+    sys.exit(1)
 
 # Set up the DataFrame for the oolumns to extract from the station_data.sql waypoint table data
 import pandas as pd
