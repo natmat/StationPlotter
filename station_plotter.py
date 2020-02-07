@@ -39,9 +39,11 @@ for line in data_sql:
     if wp_line_re:
         # Strip ' from the line, then split on ','
         data = wp_line_re.group(1).replace('\'', '')
+        print(data)
         # data_wp = data.split(',')
         # waypoint_name, waypoint_type, waypoint_id, waypoint_lat, waypoint_long, waypoint_radius, tap_tsi_code, crs_code = data.split(',')
-        waypoint_name, waypoint_type, waypoint_id, waypoint_lat, waypoint_long, waypoint_radius = data.split(',')
+        waypoint_name, waypoint_type, waypoint_id, waypoint_lat, waypoint_long, waypoint_radius, tap_tsi_code = data.split(',')
+        # waypoint_name, waypoint_type, waypoint_id, waypoint_lat, waypoint_long, waypoint_radius = data.split(',')
 
         # Add markers to the map
         lat, lon = float(waypoint_lat), float(waypoint_long)
